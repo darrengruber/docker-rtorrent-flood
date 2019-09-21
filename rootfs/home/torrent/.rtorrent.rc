@@ -11,6 +11,9 @@ trackers.use_udp.set = yes
 dht.mode.set = off
 protocol.pex.set = no
 
+method.insert = get_public_ip_address, simple|private, "execute.capture=bash,-c,\"eval echo -n \$(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com)\""
+schedule2 = ip_tick, 0, 1800, "network.local_address.set=(get_public_ip_address)"
+
 min_peers = 1
 max_peers = 100
 min_peers_seed = 1

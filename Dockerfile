@@ -45,6 +45,8 @@ RUN NB_CORES=${BUILD_CORES-`getconf _NPROCESSORS_CONF`} \
     nodejs-npm \
     unrar \
     findutils \
+    bind-tools \
+    bash \
  && cd /tmp && mkdir libtorrent rtorrent \
  && cd libtorrent && wget -qO- https://github.com/rakshasa/libtorrent/archive/v${LIBTORRENT_VER}.tar.gz | tar xz --strip 1 \
  && rm src/utils/diffie_hellman.cc \
