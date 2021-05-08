@@ -1,15 +1,16 @@
-FROM alpine:3.9
+FROM alpine:3.13
 
-ARG RTORRENT_VER=0.9.7
-ARG LIBTORRENT_VER=0.13.7
-ARG MEDIAINFO_VER=19.04
-ARG FLOOD_VER=master
+ARG RTORRENT_VER=0.9.8
+ARG LIBTORRENT_VER=0.13.8
+ARG MEDIAINFO_VER=21.03
+ARG FLOOD_VER=4.5.4
 ARG BUILD_CORES
 
 ENV UID=991 GID=991 \
-    FLOOD_SECRET=supersecret \
+    FLOOD_SECRET=supersecret30charactersminimum \
     WEBROOT=/ \
-    RTORRENT_SCGI=0 \
+    DISABLE_AUTH=false \
+    RTORRENT_SOCK=true \
     PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 RUN NB_CORES=${BUILD_CORES-`getconf _NPROCESSORS_CONF`} \
@@ -40,7 +41,7 @@ RUN NB_CORES=${BUILD_CORES-`getconf _NPROCESSORS_CONF`} \
     zlib \
     s6 \
     su-exec \
-    python \
+    python2 \
     nodejs \
     nodejs-npm \
     unrar \
@@ -49,13 +50,9 @@ RUN NB_CORES=${BUILD_CORES-`getconf _NPROCESSORS_CONF`} \
     bash \
  && cd /tmp && mkdir libtorrent rtorrent \
  && cd libtorrent && wget -qO- https://github.com/rakshasa/libtorrent/archive/v${LIBTORRENT_VER}.tar.gz | tar xz --strip 1 \
- && rm src/utils/diffie_hellman.cc \
- && wget -q https://raw.githubusercontent.com/ppentchev/libtorrent/b293276bc5f17f6372146bd605a33340a8162072/src/utils/diffie_hellman.cc -O src/utils/diffie_hellman.cc \
  && cd ../rtorrent && wget -qO- https://github.com/rakshasa/rtorrent/releases/download/v${RTORRENT_VER}/rtorrent-${RTORRENT_VER}.tar.gz | tar xz --strip 1 \
  && cd /tmp \
  && git clone https://github.com/mirror/xmlrpc-c.git \
- && git clone https://github.com/Rudde/mktorrent.git \
- && cd /tmp/mktorrent && make -j ${NB_CORES} && make install \
  && cd /tmp/xmlrpc-c/advanced && ./configure && make -j ${NB_CORES} && make install \
  && cd /tmp/libtorrent && ./autogen.sh && ./configure && make -j ${NB_CORES} && make install \
  && cd /tmp/rtorrent && ./autogen.sh && ./configure --with-xmlrpc-c && make -j ${NB_CORES} && make install \
@@ -70,10 +67,9 @@ RUN NB_CORES=${BUILD_CORES-`getconf _NPROCESSORS_CONF`} \
  && cd /tmp/MediaInfo_CLI_GNU_FromSource && ./CLI_Compile.sh \
  && cd /tmp/MediaInfo_CLI_GNU_FromSource/MediaInfo/Project/GNU/CLI && make install \
  && strip -s /usr/local/bin/rtorrent \
- && strip -s /usr/local/bin/mktorrent \
  && strip -s /usr/local/bin/mediainfo \
  && ln -sf /usr/local/bin/mediainfo /usr/bin/mediainfo \
- && mkdir /usr/flood && cd /usr/flood && wget -qO- https://github.com/jfurrow/flood/archive/${FLOOD_VER}.tar.gz | tar xz --strip 1 \
+ && mkdir /usr/flood && cd /usr/flood && wget -qO- https://github.com/jesec/flood/archive/v${FLOOD_VER}.tar.gz | tar xz --strip 1 \
  && npm install && npm cache clean --force \
  && apk del build-dependencies \
  && rm -rf /var/cache/apk/* /tmp/*
