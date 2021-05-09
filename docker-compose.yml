@@ -1,0 +1,18 @@
+version: '3'
+services:
+  flood:
+      environment:
+      - UID=1026
+      - GID=100
+      - RTORRENT_SOCK=false
+      image: darren/rtorrent-flood:v4.5.4
+      build: .
+      labels:
+          traefik.enable: 'false'
+      logging:
+          driver: json-file
+      ports:
+      - 49184:49184
+      - 49184:49184/udp
+      - 3000:3000
+      tty: true
